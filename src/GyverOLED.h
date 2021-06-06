@@ -49,6 +49,7 @@
     v0.5 (09.05.2021) - добавлена поддержка SPI и SSH1106 (только буфер)! gnd-vcc-sck-data-rst-dc-cs
     
     v1.0 - релиз
+    v1.1 - улучшен перенос строк (не убирает первый символ просто так)
 */
 
 #ifndef GyverOLED_h
@@ -246,12 +247,12 @@ public:
     virtual size_t write(uint8_t data) {
         // переносы и пределы
         bool newPos = false;		
-        if (data == '\r') { _x = 0; newPos = true; data = 0; }					// получен возврат каретки
-        if (data == '\n') { _y += _scaleY; newPos = true; data = 0; }			// получен перевод строки
+        if (data == '\r') { _x = 0; newPos = true; data = 0; }					    // получен возврат каретки
+        if (data == '\n') { _y += _scaleY; newPos = true; data = 0; _getn = 1; }    // получен перевод строки
         if (_println && (_x + 6*_scaleX) >= _maxX) { _x = 0; _y += _scaleY; newPos = true; }	// строка переполненена, перевод и возврат
-        if (newPos) setCursorXY(_x, _y);										// переставляем курсор
-        if (_y + _scaleY > _maxY + 1) data = 0;									// дисплей переполнен
-        if (_println && data == ' ' && _x == 0) { data = 0; }					// убираем первый пробел в строке
+        if (newPos) setCursorXY(_x, _y);										    // переставляем курсор
+        if (_y + _scaleY > _maxY + 1) data = 0;									    // дисплей переполнен
+        if (_getn && _println && data == ' ' && _x == 0) { _getn = 0; data = 0; }   // убираем первый пробел в строке
         
         // фикс русских букв и некоторых символов
         if (data > 127) {
@@ -954,7 +955,8 @@ public:
 private:
     // всякое
     bool _invState = 0;
-    bool _println = true;
+    bool _println = false;
+    bool _getn = false;
     uint8_t _scaleX = 1, _scaleY = 8;
     int _x = 0, _y = 0;
     uint8_t _shift = 0;

@@ -94,8 +94,8 @@ void flipV(bool mode);          // отразить по вертикали
 
 void autoPrintln(bool mode);    // автоматически переносить текст
 void home();                    // отправить курсор в 0,0
-void setCursor(int x, int y);   // поставить курсор для символа 0-127, 0-8(4)
-void setCursorXY(int x, int y); // поставить курсор для символа 0-127, 0-63(31)
+void setCursor(int x, int y);   // поставить курсор для символа столбец 0-127, строка 0-8(4)
+void setCursorXY(int x, int y); // поставить курсор для символа столбец 0-127, пиксель 0-63(31)
 void setScale(uint8_t scale);   // масштаб шрифта (1-4)
 void invertText(bool inv);      // инвертировать текст (0-1)
 bool isEnd();                   // возвращает true, если дисплей "кончился" - при побуквенном выводе
