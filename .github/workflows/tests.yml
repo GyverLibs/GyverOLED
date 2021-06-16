@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+    branches: [master, main]
+    paths-ignore:
+      - '**.md'
+    tags-ignore:
+      - '**'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+jobs: # Docs: <https://help.github.com/en/articles/workflow-syntax-for-github-actions>
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      # Its focus is on the structure, metadata, and configuration of Arduino projects, rather than the code
+      - name: Run the linter
+        uses: arduino/arduino-lint-action@v1 # https://github.com/arduino/arduino-lint-action
+        with:
+          project-type: library
+          library-manager: update
+          compliance: specification
