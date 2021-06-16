@@ -24,4 +24,4 @@ jobs: # Docs: <https://help.github.com/en/articles/workflow-syntax-for-github-ac
         with:
           project-type: library
           library-manager: update
-          compliance: strict
+          compliance: specification
