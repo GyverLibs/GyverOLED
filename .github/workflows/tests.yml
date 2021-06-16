@@ -2,8 +2,7 @@ name: tests
 
 on:
   push:
-    branches:
-      - master
+    branches: [master, main]
     paths-ignore:
       - '**.md'
     tags-ignore:
