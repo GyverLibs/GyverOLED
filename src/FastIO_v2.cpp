@@ -1,17 +1,6 @@
-// Быстрый IO для AVR (для остальных будет digitalxxxxx)
-// v1.0
+#include "FastIO_v2.h"
 
-#ifndef FastIO_h
-#define FastIO_h
-#include <Arduino.h>
-
-bool fastRead(const uint8_t pin);				// быстрое чтение пина
-void fastWrite(const uint8_t pin, bool val);	// быстрая запись
-uint8_t fastShiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder); 				// быстрый shiftIn
-void fastShiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t data);	// быстрый shiftOut
-
-// ================================================================
-bool fastRead(const uint8_t pin) {
+bool F_fastRead(const uint8_t pin) {
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     if (pin < 8) return bitRead(PIND, pin);
     else if (pin < 14) return bitRead(PINB, pin - 8);
@@ -32,8 +21,7 @@ bool fastRead(const uint8_t pin) {
     return 0;
 }
 
-
-void fastWrite(const uint8_t pin, bool val) {
+void F_fastWrite(const uint8_t pin, bool val) {
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
     if (pin < 8) bitWrite(PORTD, pin, val);
     else if (pin < 14) bitWrite(PORTB, (pin - 8), val);
@@ -56,8 +44,7 @@ void fastWrite(const uint8_t pin, bool val) {
 #endif
 }
 
-
-uint8_t fastShiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+uint8_t F_fastShiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
 #if defined(AVR)
     volatile uint8_t *_clk_port = portOutputRegister(digitalPinToPort(clockPin));
     volatile uint8_t *_dat_port = portInputRegister(digitalPinToPort(dataPin));
@@ -81,8 +68,7 @@ uint8_t fastShiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
 #endif
 }
 
-
-void fastShiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t data) {
+void F_fastShiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t data) {
 #if defined(AVR)
     volatile uint8_t *_clk_port = portOutputRegister(digitalPinToPort(clockPin));
     volatile uint8_t *_dat_port = portOutputRegister(digitalPinToPort(dataPin));
@@ -105,5 +91,3 @@ void fastShiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t d
     shiftOut(dataPin, clockPin, bitOrder, data);
 #endif
 }
-
-#endif

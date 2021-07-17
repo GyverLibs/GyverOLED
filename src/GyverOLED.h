@@ -50,6 +50,7 @@
     
     v1.0 - релиз
     v1.1 - улучшен перенос строк (не убирает первый символ просто так)
+    v1.2 - переделан FastIO
 */
 
 #ifndef GyverOLED_h
@@ -89,7 +90,7 @@
 #include <Arduino.h>
 #include <Print.h>
 #include "charMap.h"
-#include "FastIO.h"
+#include "FastIO_v2.h"
 
 
 // ============================ БЭКЭНД КОНСТАНТЫ ==============================
@@ -175,15 +176,15 @@ public:
         if (_CONN) {			
             SPI.begin();
             pinMode(_CS, OUTPUT);
-            fastWrite(_CS, 1);
+            F_fastWrite(_CS, 1);
             pinMode(_DC, OUTPUT);			
             if (_RST > 0) {
                 pinMode(_RST, OUTPUT);			
-                fastWrite(_RST, 1);
+                F_fastWrite(_RST, 1);
                 delay(1);
-                fastWrite(_RST, 0);
+                F_fastWrite(_RST, 0);
                 delay(10);
-                fastWrite(_RST, 1);
+                F_fastWrite(_RST, 1);
             }
         } else {
             Wire.begin();
@@ -894,25 +895,25 @@ public:
     
     void beginData() {
         startTransm();
-        if (_CONN) fastWrite(_DC, 1);
+        if (_CONN) F_fastWrite(_DC, 1);
         else sendByteRaw(OLED_DATA_MODE);	
     }
     
     void beginCommand() {
         startTransm();
-        if (_CONN) fastWrite(_DC, 0);
+        if (_CONN) F_fastWrite(_DC, 0);
         else sendByteRaw(OLED_COMMAND_MODE);		
     }
     
     void beginOneCommand() {
         startTransm();
-        if (_CONN) fastWrite(_DC, 0);
+        if (_CONN) F_fastWrite(_DC, 0);
         else sendByteRaw(OLED_ONE_COMMAND_MODE);		
     }
     
     void endTransm() {		
         if (_CONN) {
-            fastWrite(_CS, 1);
+            F_fastWrite(_CS, 1);
             SPI.endTransaction();
         } else {
             Wire.endTransmission();
@@ -923,7 +924,7 @@ public:
     void startTransm() {
         if (_CONN) {
             SPI.beginTransaction(OLED_SPI_SETT);
-            fastWrite(_CS, 0);
+            F_fastWrite(_CS, 0);
         } else Wire.beginTransmission(_address);
     }
 
