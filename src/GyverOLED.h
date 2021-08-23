@@ -53,6 +53,7 @@
     v1.2 - переделан FastIO
     v1.3 - прямоугольники можно рисовать из любого угла
     v1.3.1 - пофиксил линии (сломались в 1.3.0)
+    v1.3.2 - убран FastIO
 */
 
 #ifndef GyverOLED_h
@@ -92,8 +93,6 @@
 #include <Arduino.h>
 #include <Print.h>
 #include "charMap.h"
-#include "FastIO_v2.h"
-
 
 // ============================ БЭКЭНД КОНСТАНТЫ ==============================
 // внутренние константы
@@ -178,15 +177,15 @@ public:
         if (_CONN) {			
             SPI.begin();
             pinMode(_CS, OUTPUT);
-            F_fastWrite(_CS, 1);
+            fastWrite(_CS, 1);
             pinMode(_DC, OUTPUT);			
             if (_RST > 0) {
                 pinMode(_RST, OUTPUT);			
-                F_fastWrite(_RST, 1);
+                fastWrite(_RST, 1);
                 delay(1);
-                F_fastWrite(_RST, 0);
+                fastWrite(_RST, 0);
                 delay(10);
-                F_fastWrite(_RST, 1);
+                fastWrite(_RST, 1);
             }
         } else {
             Wire.begin();
@@ -911,25 +910,25 @@ public:
     
     void beginData() {
         startTransm();
-        if (_CONN) F_fastWrite(_DC, 1);
+        if (_CONN) fastWrite(_DC, 1);
         else sendByteRaw(OLED_DATA_MODE);	
     }
     
     void beginCommand() {
         startTransm();
-        if (_CONN) F_fastWrite(_DC, 0);
+        if (_CONN) fastWrite(_DC, 0);
         else sendByteRaw(OLED_COMMAND_MODE);		
     }
     
     void beginOneCommand() {
         startTransm();
-        if (_CONN) F_fastWrite(_DC, 0);
+        if (_CONN) fastWrite(_DC, 0);
         else sendByteRaw(OLED_ONE_COMMAND_MODE);		
     }
     
     void endTransm() {		
         if (_CONN) {
-            F_fastWrite(_CS, 1);
+            fastWrite(_CS, 1);
             SPI.endTransaction();
         } else {
             Wire.endTransmission();
@@ -940,7 +939,7 @@ public:
     void startTransm() {
         if (_CONN) {
             SPI.beginTransaction(OLED_SPI_SETT);
-            F_fastWrite(_CS, 0);
+            fastWrite(_CS, 0);
         } else Wire.beginTransmission(_address);
     }
 
@@ -971,6 +970,18 @@ public:
     uint8_t _oled_buffer[((_BUFF == 1) ? (_TYPE ? BUFSIZE_128x64 : BUFSIZE_128x32) : 0)];
 private:
     // всякое
+    void fastWrite(const uint8_t pin, bool val) {
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+        if (pin < 8) bitWrite(PORTD, pin, val);
+        else if (pin < 14) bitWrite(PORTB, (pin - 8), val);
+        else if (pin < 20) bitWrite(PORTC, (pin - 14), val);
+#elif defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny13__)
+        bitWrite(PORTB, pin, val);
+#else
+        digitalWrite(pin, val);
+#endif
+    }
+
     bool _invState = 0;
     bool _println = false;
     bool _getn = false;
