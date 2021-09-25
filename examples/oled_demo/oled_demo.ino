@@ -99,7 +99,7 @@ void setup() {
 
   // --------------------------
   // СЕРВИС
-  //oled.setContrast(10);   // яркость 0..15
+  //oled.setContrast(10);   // яркость 0..255
   //oled.setPower(true);    // true/false - включить/выключить дисплей
   //oled.flipH(true);       // true/false - отзеркалить по горизонтали
   //oled.flipV(true);       // true/false - отзеркалить по вертикали

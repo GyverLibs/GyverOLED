@@ -230,7 +230,7 @@ public:
         }
     }
     
-    // яркость 0-15
+    // яркость 0-255
     void setContrast(uint8_t value) { sendCommand(OLED_CONTRAST, value); }
     
     // вкл/выкл
