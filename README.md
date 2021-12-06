@@ -112,6 +112,7 @@ OLED_FILL - залить фигуру
 OLED_STROKE - обвести фигуру
 
 void dot(int x, int y, byte fill);                      // точка (заливка 1/0)
+void line(int x0, int y0, int x1, int y1, byte fill);   // линия (x0, y0, x1, y1)
 void fastLineH(int y, int x0, int x1, byte fill);       // горизонтальная линия
 void fastLineV(int x, int y0, int y1, byte fill);       // вертикальная линия
 void rect(int x0, int y0, int x1, int y1, byte fill);   // прямоугольник (лев. верхн, прав. нижн)	
