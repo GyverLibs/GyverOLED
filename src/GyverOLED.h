@@ -54,6 +54,7 @@
     v1.3 - прямоугольники можно рисовать из любого угла
     v1.3.1 - пофиксил линии (сломались в 1.3.0)
     v1.3.2 - убран FastIO
+    v1.4 - пофикшены SPI дисплеи
 */
 
 #ifndef GyverOLED_h
@@ -746,7 +747,8 @@ public:
             if (_TYPE < 2) {	// для 1306			
                 setWindow(0, 0, _maxX, _maxRow);
                 beginData();
-                if (_CONN) SPI.transfer(_oled_buffer, _TYPE ? 1024 : 512);
+                //if (_CONN) SPI.transfer(_oled_buffer, _TYPE ? 1024 : 512);
+                if (_CONN) for (int i = 0; i < (_TYPE ? 1024 : 512); i++) SPI.transfer(_oled_buffer[i]);
                 else for (int i = 0; i < (_TYPE ? 1024 : 512); i++) sendByte(_oled_buffer[i]);
                 endTransm();			
             } else {			// для 1106
