@@ -227,7 +227,7 @@ public:
             writeData(0, y, x, 2);
             if (!_BUFF) endTransm();			
         } else {
-            // для SSH1108
+            // для SSH1106
         }
     }
     
@@ -337,6 +337,7 @@ public:
             setWindowShift(x, y, _maxX, _scaleY);
         } else {
             // SSH1106 without buffer
+            _shift = y & 0b111; // setup y-shift
             // m_col = x + 2;
             // m_row = y;
             sendCommand(0xb0 + (y >> 3)); //set page address
@@ -701,7 +702,7 @@ public:
                     }
                 }
                 // Return cursor home
-                setCursorXY(0, 0);
+                setCursorXY(_x, _y);
             }
         }		
     }
