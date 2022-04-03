@@ -271,7 +271,7 @@ public:
         if (data == 0) return 1;	
         // если тут не вылетели - печатаем символ		
         
-        if (_TYPE < 2 || 1) {						// для SSD1306
+        if (_TYPE < 2 || _BUFF) {						                 // для SSD1306 или SSH1106 с буфером
             int newX = _x + _scaleX * 6;
             if (newX < 0 || _x > _maxX) _x = newX;	// пропускаем вывод "за экраном"
             else {				
@@ -313,8 +313,51 @@ public:
                 }
                 if (!_BUFF) endTransm();
             }
-        } else {						
-            // для SSH1106
+        } else {                                                                // для SSH1106 без буфера
+            int newX = _x + _scaleX * 6;
+            if (newX < 0 || _x > _maxX) _x = newX;                              // пропускаем вывод "за экраном"
+            else {
+                for (uint8_t col = 0; col < 6; col++) {                         // 6 стобиков буквы
+                    uint8_t bits = getFont(data, col);                          // получаем байт
+                    if (_invState) bits = ~bits;                                // инверсия
+                    if (_scaleX == 1) {                                         // если масштаб 1
+                        if (!_BUFF) beginData();
+                        if (_x >= 0 && _x <= _maxX) {                           // внутри дисплея
+                            if (_shift == 0) {                                  // если вывод без сдвига на строку
+                                writeData(bits, 0, 0, _mode);                   // выводим
+                            } else {                                            // со сдвигом
+                                writeData(bits << _shift, 0, 0, _mode);         // верхняя часть
+                                writeData(bits >> (8 - _shift), 1, 0, _mode);   // нижняя часть
+                            }
+                        }
+                        if (!_BUFF) endTransm();
+                    } else {                                                    // масштаб 2, 3 или 4 - растягиваем шрифт
+                                                                                // разбиваем и выводим по строкам
+                        long newData = 0;                                       // буфер
+                        for (uint8_t i = 0, count = 0; i < 8; i++)
+                            for (uint8_t j = 0; j < _scaleX; j++, count++)
+                                bitWrite(newData, count, bitRead(bits, i));     // пакуем растянутый шрифт
+                                                                                // выводим пачками по строкам (page)
+                        for (byte y = 0; y < _scaleX; y++) {                    // проходим по каждой строке (y)
+                            sendCommand(0xb0 + (_y >> 3) + y);                  // установить адрес строки (page address)
+                            for (uint8_t i = 0; i < _scaleX; i++) {             // выводим. По столбцам (i: x)
+                                sendCommand((_x + 2 + i) & 0xf);                // нижний адрес столбца
+                                sendCommand(0x10 | ((_x + 2 + i) >> 4));        // верхний адрес столбца
+                                if (!_BUFF) beginData();
+                                if (_x + i >= 0 && _x + i <= _maxX) {           // проверка на попадание внутри дисплея
+                                    for (uint8_t j = 0; j < _scaleX; j++) {     // выводим. Разделяем по блокам (j: y)
+                                        byte data = newData >> ((j + y) * 8);   // получаем кусок буфера
+                                        sendByte(data);                         // выводим
+                                        // writeData(data, j, i, _mode);        // пример вывода с буфером
+                                    }
+                                }
+                                if (!_BUFF) endTransm();
+                            }
+                        }
+                    }
+                    _x += _scaleX;                                              // двигаемся на ширину пикселя (1-4)
+                }
+            }
         }	
         return 1;
     }
