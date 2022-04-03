@@ -332,7 +332,17 @@ public:
     void setCursorXY(int x, int y) { 			
         _x = x;
         _y = y;	
-        setWindowShift(x, y, _maxX, _scaleY);
+        if (_TYPE < 2 || _BUFF) {
+            // SSD1306 or SSH1106 witthout buffer
+            setWindowShift(x, y, _maxX, _scaleY);
+        } else {
+            // SSH1106 without buffer
+            // m_col = x + 2;
+            // m_row = y;
+            sendCommand(0xb0 + (y >> 3)); //set page address
+            sendCommand((x + 2) & 0xf); //set lower column address
+            sendCommand(0x10 | ((x + 2) >> 4)); //set higher column address
+        }
     }
     
     // масштаб шрифта (1-4)
@@ -666,13 +676,32 @@ public:
     void fill(uint8_t data) {
         if (_BUFF) memset(_oled_buffer, data, _bufSize);
         else {
-            if (_TYPE < 2 || 1) {	// для SSD1306						
+            if (_TYPE < 2) {	// для SSD1306
                 setWindow(0, 0, _maxX, _maxRow);
                 beginData();
                 for (int i = 0; i < (_TYPE ? 1024 : 512); i++) sendByte(data);				
                 endTransm();			
-            } else {			// для SSH1108			
-                
+            } else {			// для SSH1106
+                sendCommand(0x00); // Set Lower Column Start Address for Page Addressing Mode
+                sendCommand(0x10); // Set Higher Column Start Address for Page Addressing Mode
+                sendCommand(0x40); // Set display RAM display start line register from 0 - 63
+                // For each page
+                for (uint8_t i = 0; i < (64 >> 3); i++) {
+                    sendCommand(0xB0 + i + 0);  // Set page address
+                    sendCommand(2 & 0xf);       // Set lower column address
+                    sendCommand(0x10);          // Set higher column address
+                    // Divide for blocks
+                    for (uint8_t a = 0; a < 8; a++) {
+                        beginData();
+                        // For each block
+                        for (uint8_t b = 0; b < (OLED_WIDTH >> 3); b++) {
+                            sendByte(data);
+                        }
+                        endTransm();
+                    }
+                }
+                // Return cursor home
+                setCursorXY(0, 0);
             }
         }		
     }
