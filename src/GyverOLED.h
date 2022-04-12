@@ -735,14 +735,14 @@ public:
                     sendCommand(2 & 0xf);       // Set lower column address
                     sendCommand(0x10);          // Set higher column address
                     // Divide for blocks
+                    beginData();
                     for (uint8_t a = 0; a < 8; a++) {
-                        beginData();
                         // For each block
                         for (uint8_t b = 0; b < (OLED_WIDTH >> 3); b++) {
                             sendByte(data);
                         }
-                        endTransm();
                     }
+                    endTransm();
                 }
                 // Return cursor home
                 setCursorXY(_x, _y);
