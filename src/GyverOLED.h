@@ -375,18 +375,8 @@ public:
     void setCursorXY(int x, int y) { 			
         _x = x;
         _y = y;	
-        if (_TYPE < 2 || _BUFF) {
-            // SSD1306 or SSH1106 witthout buffer
-            setWindowShift(x, y, _maxX, _scaleY);
-        } else {
-            // SSH1106 without buffer
-            _shift = y & 0b111; // setup y-shift
-            // m_col = x + 2;
-            // m_row = y;
-            sendCommand(0xb0 + (y >> 3)); //set page address
-            sendCommand((x + 2) & 0xf); //set lower column address
-            sendCommand(0x10 | ((x + 2) >> 4)); //set higher column address
-        }
+        setWindowShift(x, y, _maxX, _scaleY);
+        setWindowAddress(x, y);
     }
     
     // масштаб шрифта (1-4)
@@ -970,7 +960,7 @@ public:
         sendByteRaw(cmd2);
         endTransm();
     }	
-    
+
     // выбрать "окно" дисплея
     void setWindow(int x0, int y0, int x1, int y1) {		
         beginCommand();
@@ -981,6 +971,15 @@ public:
         sendByteRaw(constrain(y0, 0, _maxRow));
         sendByteRaw(constrain(y1, 0, _maxRow));
         endTransm();
+    }
+
+    void setWindowAddress(int x, int y) {
+        // for SSH1106 without buffer
+        if (_TYPE && !_BUFF) {
+            sendCommand(0xb0 + (y >> 3)); //set page address
+            sendCommand((x + 2) & 0xf); //set lower column address
+            sendCommand(0x10 | ((x + 2) >> 4)); //set higher column address
+        }
     }
     
     void beginData() {
