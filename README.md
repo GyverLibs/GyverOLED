@@ -86,7 +86,7 @@ GyverOLED<SSD1306_128x64, OLED_BUFFER, OLED_SPI, CS, DS, RST> oled;
 void init();                    // инициализация
 void clear();                   // очистить дисплей
 void clear(int x0, int y0, int x1, int y1); // очистить область
-void setContrast(uint8_t value);    // яркость 0-255
+void setContrast(uint8_t value);    // яркость 0-255 (умолч. 127)
 void setPower(bool mode);       // вкл/выкл
 void flipH(bool mode);          // отразить по горизонтали
 void invertDisplay(bool mode);  // инвертировать дисплей
