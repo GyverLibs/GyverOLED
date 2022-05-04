@@ -1,3 +1,5 @@
+This is an automatic translation, may be incorrect in some places. See sources and examples!
+
 # GyverOLED
 Lightweight and fast library for OLED display
 - Support for OLED displays on SSD1306 / SSH1106 with a resolution of 128x64 and 128x32 with I2C and SPI connection
