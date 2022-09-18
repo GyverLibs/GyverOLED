@@ -191,6 +191,9 @@ public:
             }
         } else {
             Wire.begin();
+            #ifdef FAST_I2C
+            Wire.setClock(1000000);
+            #endif
         }
         
         beginCommand();
