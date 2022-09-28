@@ -228,7 +228,7 @@ public:
             writeData(0, y, x, 2);
             if (!_BUFF) endTransm();			
         } else {
-            // для SSH1108
+            // для SSH1106
         }
         setCursorXY(_x, _y);
     }
@@ -273,7 +273,7 @@ public:
         if (data == 0) return 1;	
         // если тут не вылетели - печатаем символ		
         
-        if (_TYPE < 2 || 1) {						// для SSD1306
+        if (_TYPE < 2 || _BUFF) {						                 // для SSD1306 или SSH1106 с буфером
             int newX = _x + _scaleX * 6;
             if (newX < 0 || _x > _maxX) _x = newX;	// пропускаем вывод "за экраном"
             else {				
@@ -315,8 +315,81 @@ public:
                 }
                 if (!_BUFF) endTransm();
             }
-        } else {						
-            // для SSH1106
+        } else {                                                                // для SSH1106 без буфера
+            int newX = _x + _scaleX * 6;
+            if (newX < 0 || _x > _maxX) _x = newX;                              // пропускаем вывод "за экраном"
+            else {
+                for (uint8_t col = 0; col < 6; col++) {                         // 6 стобиков буквы
+                    uint8_t bits = getFont(data, col);                          // получаем байт
+                    if (_invState) bits = ~bits;                                // инверсия
+                    if (_scaleX == 1) {                                         // если масштаб 1
+                        if (_x >= 0 && _x <= _maxX) {                           // внутри дисплея
+                            if (_shift == 0) {                                  // если вывод без сдвига на строку
+                                beginData();
+                                sendByte(bits);                                 // выводим
+                                endTransm();
+                            } else {                                            // со сдвигом и с разделением на 2 строки
+                                setWindowAddress(_x, _y);
+                                beginData();
+                                sendByte(bits << _shift);                       // верхняя часть
+                                endTransm();
+                                setWindowAddress(_x, _y + 8);
+                                beginData();
+                                sendByte(bits >> (8 - _shift));                 // нижняя часть
+                                endTransm();
+                            }
+                        }
+                    } else {                                                                // масштаб 2, 3 или 4 - растягиваем шрифт
+                                                                                            // разбиваем и выводим по строкам
+                        long newData = 0;                                                   // буфер
+                        for (uint8_t i = 0, count = 0; i < 8; i++)
+                            for (uint8_t j = 0; j < _scaleX; j++, count++)
+                                bitWrite(newData, count, bitRead(bits, i));                 // пакуем растянутый шрифт
+                                                                                            // выводим пачками по строкам (page)
+                        for (byte y = 0; y < _scaleX; y++) {                                // проходим по каждой строке (y)
+                            sendCommand(0xb0 + (_y >> 3) + y);                              // установить адрес строки (page address)
+                            for (uint8_t i = 0; i < _scaleX; i++) {                         // выводим. По столбцам (i: x)
+                                sendCommand((_x + 2 + i) & 0xf);                            // нижний адрес столбца
+                                sendCommand(0x10 | ((_x + 2 + i) >> 4));                    // верхний адрес столбца
+                                beginData();
+                                if (_x + i >= 0 && _x + i <= _maxX) {                       // проверка на попадание внутри дисплея
+                                    if (_shift == 0) {                                      // если вывод без сдвига на строку
+                                        for (uint8_t j = 0; j < _scaleX; j++) {             // выводим. Разделяем по блокам (j: y)
+                                            byte data;
+                                            data = newData >> ((j + y) * 8);                // получаем кусок буфера
+                                            sendByte(data);                                 // выводим
+                                        }
+                                    } else {                                                // если вывод со сдвигом на строку
+                                        for (uint8_t j = 0; j < _scaleX; j++) {             // выводим. Разделяем по блокам (j: y)
+                                            byte data;
+                                            data = (newData << _shift) >> ((j + y) * 8);    // получаем кусок буфера
+                                            sendByte(data);                                 // выводим
+                                        }
+                                    }
+                                }
+                                endTransm();
+                            }
+                        }
+                        // Добавляется строка в конце при сдвиге на строку
+                        if (_shift != 0) {
+                            sendCommand(0xb0 + (_y >> 3) + _scaleX);                  // установить адрес строки (page address)
+                            for (uint8_t i = 0; i < _scaleX; i++) {             // выводим. По столбцам (i: x)
+                                sendCommand((_x + 2 + i) & 0xf);                // нижний адрес столбца
+                                sendCommand(0x10 | ((_x + 2 + i) >> 4));        // верхний адрес столбца
+                                beginData();
+                                for (uint8_t j = 0; j < _scaleX; j++) {     // выводим. Разделяем по блокам (j: y)
+                                    byte data;
+                                    data = (newData << _shift) >> ((j + _scaleX) * 8);   // получаем кусок буфера
+                                    // data = newData >> ((j + _scaleX) * 8 + 8 - _shift);   // получаем кусок буфера
+                                    sendByte(data);                         // выводим
+                                }
+                                endTransm();
+                            }
+                        }
+                    }
+                    _x += _scaleX;                                              // двигаемся на ширину пикселя (1-4)
+                }
+            }
         }	
         return 1;
     }
@@ -335,6 +408,7 @@ public:
         _x = x;
         _y = y;	
         setWindowShift(x, y, _maxX, _scaleY);
+        setWindowAddress(x, y);
     }
     
     // масштаб шрифта (1-4)
@@ -668,13 +742,32 @@ public:
     void fill(uint8_t data) {
         if (_BUFF) memset(_oled_buffer, data, _bufSize);
         else {
-            if (_TYPE < 2 || 1) {	// для SSD1306						
+            if (_TYPE < 2) {	// для SSD1306
                 setWindow(0, 0, _maxX, _maxRow);
                 beginData();
                 for (int i = 0; i < (_TYPE ? 1024 : 512); i++) sendByte(data);				
                 endTransm();			
-            } else {			// для SSH1108			
-                
+            } else {			// для SSH1106
+                sendCommand(0x00); // Set Lower Column Start Address for Page Addressing Mode
+                sendCommand(0x10); // Set Higher Column Start Address for Page Addressing Mode
+                sendCommand(0x40); // Set display RAM display start line register from 0 - 63
+                // For each page
+                for (uint8_t i = 0; i < (64 >> 3); i++) {
+                    sendCommand(0xB0 + i + 0);  // Set page address
+                    sendCommand(2 & 0xf);       // Set lower column address
+                    sendCommand(0x10);          // Set higher column address
+                    // Divide for blocks
+                    beginData();
+                    for (uint8_t a = 0; a < 8; a++) {
+                        // For each block
+                        for (uint8_t b = 0; b < (OLED_WIDTH >> 3); b++) {
+                            sendByte(data);
+                        }
+                    }
+                    endTransm();
+                }
+                // Return cursor home
+                setCursorXY(_x, _y);
             }
         }
         setCursorXY(_x, _y);
@@ -900,7 +993,7 @@ public:
         sendByteRaw(cmd2);
         endTransm();
     }	
-    
+
     // выбрать "окно" дисплея
     void setWindow(int x0, int y0, int x1, int y1) {		
         beginCommand();
@@ -911,6 +1004,15 @@ public:
         sendByteRaw(constrain(y0, 0, _maxRow));
         sendByteRaw(constrain(y1, 0, _maxRow));
         endTransm();
+    }
+
+    void setWindowAddress(int x, int y) {
+        // for SSH1106 without buffer
+        if (_TYPE && !_BUFF) {
+            sendCommand(0xb0 + (y >> 3)); //set page address
+            sendCommand((x + 2) & 0xf); //set lower column address
+            sendCommand(0x10 | ((x + 2) >> 4)); //set higher column address
+        }
     }
     
     void beginData() {
