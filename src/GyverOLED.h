@@ -56,6 +56,7 @@
     v1.3.2 - убран FastIO
     v1.4 - пофикшены SPI дисплеи
     v1.5 - пофикшен битый вывод после очистки без указания курсора
+    v1.6 - добавлена возможность переназначения портов I2c, только при использовании библиотеки Wire
 */
 
 #ifndef GyverOLED_h
@@ -176,7 +177,7 @@ public:
     // ============================= СЕРВИС =============================== 
     // инициализация
     void init() {
-        if (_CONN) {			
+        if (_CONN == OLED_SPI) {			
             SPI.begin();
             pinMode(_CS, OUTPUT);
             fastWrite(_CS, 1);
@@ -189,6 +190,10 @@ public:
                 delay(10);
                 fastWrite(_RST, 1);
             }
+#if !defined(microWire_h)
+		} else if (_CONN == OLED_I2C && _CS != -1 && _DC != -1) {
+			Wire.begin(_CS, _DC);
+#endif
         } else {
             Wire.begin();
         }
@@ -751,7 +756,7 @@ public:
                 setWindow(0, 0, _maxX, _maxRow);
                 beginData();
                 //if (_CONN) SPI.transfer(_oled_buffer, _TYPE ? 1024 : 512);
-                if (_CONN) for (int i = 0; i < (_TYPE ? 1024 : 512); i++) SPI.transfer(_oled_buffer[i]);
+                if (_CONN == OLED_SPI) for (int i = 0; i < (_TYPE ? 1024 : 512); i++) SPI.transfer(_oled_buffer[i]);
                 else for (int i = 0; i < (_TYPE ? 1024 : 512); i++) sendByte(_oled_buffer[i]);
                 endTransm();			
             } else {			// для 1106
@@ -871,7 +876,7 @@ public:
     void sendByte(uint8_t data) {
         sendByteRaw(data);
 #if !defined(microWire_h)
-        if (!_CONN) {
+        if (!_CONN || _CONN == OLED_I2C) {
             _writes++;
             if (_writes >= 16) {			
                 endTransm();
@@ -881,7 +886,7 @@ public:
 #endif
     }
     void sendByteRaw(uint8_t data) {
-        if (_CONN) SPI.transfer(data);
+        if (_CONN == OLED_SPI) SPI.transfer(data);
         else Wire.write(data);
     }
 
@@ -915,24 +920,24 @@ public:
     
     void beginData() {
         startTransm();
-        if (_CONN) fastWrite(_DC, 1);
+        if (_CONN == OLED_SPI) fastWrite(_DC, 1);
         else sendByteRaw(OLED_DATA_MODE);	
     }
     
     void beginCommand() {
         startTransm();
-        if (_CONN) fastWrite(_DC, 0);
+        if (_CONN == OLED_SPI) fastWrite(_DC, 0);
         else sendByteRaw(OLED_COMMAND_MODE);		
     }
     
     void beginOneCommand() {
         startTransm();
-        if (_CONN) fastWrite(_DC, 0);
+        if (_CONN == OLED_SPI) fastWrite(_DC, 0);
         else sendByteRaw(OLED_ONE_COMMAND_MODE);		
     }
     
     void endTransm() {		
-        if (_CONN) {
+        if (_CONN == OLED_SPI) {
             fastWrite(_CS, 1);
             SPI.endTransaction();
         } else {
@@ -942,7 +947,7 @@ public:
     }
 
     void startTransm() {
-        if (_CONN) {
+        if (_CONN == OLED_SPI) {
             SPI.beginTransaction(OLED_SPI_SETT);
             fastWrite(_CS, 0);
         } else Wire.beginTransmission(_address);
