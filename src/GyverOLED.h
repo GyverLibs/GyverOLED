@@ -194,7 +194,7 @@ public:
             }
         } else {
 #if defined(ESP32) || defined (ESP8266)
-            if (sda && scl) Wire.begin(sda, scl);
+            if (sda || scl) Wire.begin(sda, scl);
             else Wire.begin();
 #else
             Wire.begin();
@@ -303,7 +303,7 @@ public:
                             }    
                         }                                    
                     } else {                                            // масштаб 2, 3 или 4 - растягиваем шрифт                        
-                        long newData = 0;                                // буфер
+                        uint32_t newData = 0;                                // буфер
                         for (uint8_t i = 0, count = 0; i < 8; i++)
                         for (uint8_t j = 0; j < _scaleX; j++, count++)                            
                         bitWrite(newData, count, bitRead(bits, i));        // пакуем растянутый шрифт
