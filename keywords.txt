@@ -6,6 +6,8 @@
 # Datatypes (KEYWORD1)
 #######################################
 GyverOLED	KEYWORD1
+OLED_NO_PRINT	KEYWORD1
+OLED_SPI_SPEED	LITERAL1	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -64,5 +66,3 @@ USE_MICRO_WIRE	LITERAL1
 
 OLED_I2C	LITERAL1
 OLED_SPI	LITERAL1
-
-OLED_SPI_SPEED	LITERAL1
