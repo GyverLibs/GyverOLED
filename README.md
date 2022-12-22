@@ -92,6 +92,8 @@ GyverOLED<SSD1306_128x64, OLED_BUFFER, OLED_SPI, CS, DS, RST> oled;
 ```cpp
 // ===== СЕРВИС =====
 void init();                    // инициализация
+void init(sda, scl);            // инициализация (можно указать пины i2c для esp8266/32)
+
 void clear();                   // очистить дисплей
 void clear(int x0, int y0, int x1, int y1); // очистить область
 void setContrast(uint8_t value);    // яркость 0-255 (умолч. 127)
