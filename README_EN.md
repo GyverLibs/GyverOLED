@@ -1,297 +1,333 @@
 This is an automatic translation, may be incorrect in some places. See sources and examples!
 
-# GyverOLED
-Lightweight and fast library for OLED display
-- Support for OLED displays on SSD1306 / SSH1106 with a resolution of 128x64 and 128x32 with I2C and SPI connection
-- Buffer selection
-    - No buffer at all (and no loss of features)
-    - Buffer on the MK side (spends a lot of RAM, but it's more convenient to use)
-    - Update the buffer in the selected location (for fast rendering)
-    - Dynamic buffer of selected size (all geometry, text, bytes)
-    - TODO: Buffer on display side (only for SSH1106!!!)
-- Text output
-    - Fastest text output among OLED libraries
-    - Support for the Russian language and the letter ё (!)
-    - Nicer font (compared to beta)
-    - Off-display coordinates for scrolling
-    - Text output to any point (per pixel addressing)
-    - Fullscreen output with extra spaces removed
-    - 4 letter sizes (based on one font, saves a lot of memory!)
-    - Ability to write in black-on-white and white-on-black
-- Display control
-    - Brightness setting
-    - Quick inversion of the entire display
-    - Turn on / off the display from the sketch
-    - Changing display orientation (mirrored vertically and horizontally)
-- Graphics (contour, fill, clear)
+# Gyveroled
+Light and fast library for OLED display
+- Support for OLED display on SSD1306/SSH1106 with a resolution of 128x64 and 128x32 with connection by i2C and SPI
+- Choosing a buffer
+    - at all without a buffer (and without a special loss of possibilities)
+    - buffer on the side of MK (spends a bunch of RAM, but more convenient in work)
+    - Boofer update in the selected place (for quick rendering)
+    - dynamic buffer of the selected size (all geometry, text, bytes)
+    - Todo: Boofer on the display (only for SSH1106 !!!)
+- Conclusion of the text
+    - The fastest output of the text among OLED Library
+    - Support for the Russian language and letters e (!)
+    - A more pleasant font (compared to Beta)
+    - coordinates outside the display for the possibility of scrolling
+    - The output of the text to any point (Popixel addressing)
+    - Full -screen conclusion with the removal of extra gaps
+    - 4 sizes of letters (based on one font, saves a bunch of memory!)
+    -the ability to write black and white and white-to-black
+- display management
+    - Installation of brightness
+    - Fast inversion of the whole display
+    - turning on/off the display from the sketch
+    - change in the orientation of the display (mirror vertically and horizontal)
+- graphics (contour, filling, cleaning)
     - Points
     - Lines
-    - Rectangles
+    - rectangles
     - Rectangles with rounded corners
     - Circles
-    - Bezier curves
-- Images (bitmap)
-    - Bitmap output to any point on the display
-    - Conclusion "forDisplay"
-    - The program for converting images is in the library
-- Support for microWire library for ATmega328 (very easy and fast output)
+    - Crooked Bezier
+- Images (Bitmap)
+    - Bitmap output to any display point
+    - Conclusion "For display"
+    - There is a program for converting images in the library
+- Support for the Microwire library for Atmega328 (very light and quick conclusion)
 
-### Compatibility
-Compatible with all Arduino platforms (using Arduino functions)
+## compatibility
+Compatible with all arduino platforms (used arduino functions)
 
 ## Content
-- [Install](#install)
-- [Initialization](#init)
-- [Usage](#usage)
-- [Example](#example)
-- [Versions](#versions)
-- [Bugs and feedback](#feedback)
+- [installation] (# Install)
+- [initialization] (#init)
+- [use] (#usage)
+- [Example] (# Example)
+- [versions] (#varsions)
+- [bugs and feedback] (#fedback)
 
-<a id="install"></a>
+<a id="install"> </a>
 ## Installation
-- The library can be found by the name **GyverOLED** and installed through the library manager in:
-    - Arduino IDE
-    - Arduino IDE v2
-    - PlatformIO
-- [Download library](https://github.com/GyverLibs/GyverOLED/archive/refs/heads/main.zip) .zip archive for manual installation:
-    - Unzip and put in *C:\Program Files (x86)\Arduino\libraries* (Windows x64)
-    - Unzip and put in *C:\Program Files\Arduino\libraries* (Windows x32)
-    - Unpack and put in *Documents/Arduino/libraries/*
-    - (Arduino IDE) automatic installation from .zip: *Sketch/Include library/Add .ZIP library…* and specify the downloaded archive
-- Read more detailed instructions for installing libraries [here] (https://alexgyver.ru/arduino-first/#%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE% D0%B2%D0%BA%D0%B0_%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA)
+- The library can be found by the name ** gyveroled ** and installed through the library manager in:
+    - Arduino ide
+    - Arduino ide v2
+    - Platformio
+- [download the library] (https://github.com/gyverlibs/gyveroled/archive/refs/heads/main.zip) .Zip archive for manual installation:
+    - unpack and put in * C: \ Program Files (X86) \ Arduino \ Libraries * (Windows X64)
+    - unpack and put in * C: \ Program Files \ Arduino \ Libraries * (Windows X32)
+    - unpack and put in *documents/arduino/libraries/ *
+    - (Arduino id) Automatic installation from. Zip: * sketch/connect the library/add .Zip library ... * and specify downloaded archive
+- Read more detailed instructions for installing libraries [here] (https://alexgyver.ru/arduino-first/#%D0%A3%D1%81%D1%82%D0%B0%BD%D0%BE%BE%BE%BED0%B2%D0%BA%D0%B0_%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA)
+### Update
+- I recommend always updating the library: errors and bugs are corrected in the new versions, as well as optimization and new features are added
+- through the IDE library manager: find the library how to install and click "update"
+- Manually: ** remove the folder with the old version **, and then put a new one in its place.“Replacement” cannot be done: sometimes in new versions, files that remain when replacing are deleted and can lead to errors!
 
-<a id="init"></a>
-## Initialization
-```cpp
+
+<a id="init"> </a>
+## initialCranberries
+`` `CPP
 // I2C
-GyverOLED<SSD1306_128x32, OLED_BUFFER> oled; // with buffer
-GyverOLED<SSD1306_128x32, OLED_NO_BUFFER> oled; // no buffer
-GyverOLED<SSD1306_128x64, OLED_BUFFER> oled; // with buffer
-GyverOLED<SSD1306_128x64, OLED_NO_BUFFER> oled; // no buffer
-GyverOLED<SSH1106_128x64> oled; // software buffer only
-// constructor can be passed address oled(0x3C)
+GyverOLED <SSD1306_128X32, OLED_BUFFER> OLED;// with a buffer
+Gyveroled <SSD1306_128X32, OLED_NO_BUFFER> OLED;// without buffer
+GyverOLED <SSD1306_128X64, OLED_BUFFER> OLED;// with a buffer
+GyverOLED <SSD1306_128X64, OLED_NO_BUFFER> OLED;// without buffer
+GyverOLED <SSH1106_128X64> OLED;// only software buffer
+// to the designer you can send the address OLED (0x3c)
 
 // SPI
-GyverOLED<SSD1306_128x64, OLED_BUFFER, OLED_SPI, CS, DS, RST> oled;
-// where CS, DS, RST are digital pins
+Gyveroled <SSD1306_128X64, OLED_BUFFER, OLED_SPI, CS, DS, RST> OLED;
+// where cs, ds, rst - digital pins
 // display connects D0 to SCK, D1 to MOSI
-```
 
-<a id="usage"></a>
+// Note: You can disperse the i2C tire to increase the speed of updating the display.Call
+// wire.setclock (800000l);
+// after init () initialization of the display
+// Note: Not all other i2C modules and sensors will work at such a frequency!
+`` `
+
+<a id="usage"> </a>
 ## Usage
-```cpp
-// ===== SERVICE =====
-void init(); // andcranberry initialization
-void clear(); // clear display
-void clear(int x0, int y0, int x1, int y1); // clear area
-void setContrast(uint8_t value); // brightness 0-255 (default 127)
-void setPower(bool mode); // on off
-void flipH(bool mode); // flip horizontally
-void invertDisplay(bool mode); // invert display
-void flipV(bool mode); // flip vertically
+`` `CPP
+// ===== Service ========
+VOID Init ();// Initialization
+VOID Init (SDA, SCL);// initialization (you can specify pins i2c for ESP8266/32)
 
-// ===== PRINT =====
-// inherits the Print class, i.e. print/println any data type
+Void Clear ();// Clean the display
+Void Clear (Int X0, Int Y0, Int X1, Int Y1);// Clean the region
+VOID setContrast (Uint8_t Value);// brightness 0-255 (silence 127)
+VOID setpower (Bool Mode);// on off
+VOID FLIPH (Bool Mode);// Reflect horizontally
+VOID Invertdisplay (Bool Mode);// Invert the display
+Void Flipv (Bool Mode);// Reflect vertically
 
-void autoPrintln(bool mode); // automatically wrap text
-voidhome(); // send cursor to 0,0
-void setCursor(int x, int y); // put cursor on character column 0-127, row 0-8(4)
-void setCursorXY(int x, int y); // put cursor on character column 0-127, pixel 0-63(31)
-void setScale(uint8_tscale); // font scale (1-4)
-void invertText(bool inv); // invert text (0-1)
-bool isEnd(); // returns true if the display is "ended" - for letter-by-letter output
+// ==== Settings ====
+// Defines before connecting the library
+#define oled_no_print // Disable the text output module.Saves ~ 2.5 kb flash
+#define oled_spi_Speed // SPI speed
 
-void textMode(byte mode); // text rendering mode
-BUF_ADD - add
+// ===== Print =======
+// Inherits the Print class, that is, Print/Println any data type
+
+Void Autoprintln (Bool Mode);// automatically tolerate text
+VOID Home ();// Send the cursor at 0.0
+VOID setcursor (Int X, Int y);// Put a cursor for the symbol column 0-127, line 0-8 (4)
+VOID setcursorxy (int x, int y);// Put a cursor for the symbol column 0-127, pixel 0-63 (31)
+VOID Setscale (Uint8_T Scale);// font scale (1-4)
+VOID Invertext (Bool Inv);// Invert text (0-1)
+Bool Isend ();// Returns True if the display "ends" - with a multiple conclusion
+
+VOID Textmode (byte mode);// Text drawing mode
+BUF_ADD - Add
 BUF_SUBTRACT - subtract
-BUF_REPLACE - replace
+Buf_replas - replace
 
-// ===== GRAPHICS =====
-// further fill:
-OLED_CLEAR - clear the area under the figure
-OLED_FILL - fill the shape
-OLED_STROKE - stroke shape
+// ===== graphics ========
+// Next Fill:
+Oled_Clear - Clean the area under the figure
+Oled_Fill - Pour the figure
+Oled_stroke - circle the figure
 
-void dot(int x, int y, byte fill); // dot (fill 1/0)
-void line(int x0, int y0, int x1, int y1, byte fill); // line (x0, y0, x1, y1)
-void fastLineH(int y, int x0, int x1, byte fill); // horizontal line
-void fastLineV(int x, int y0, int y1, byte fill); // vertical line
-void rect(int x0, int y0, int x1, int y1, byte fill); // rectangle (top left, bottom right)
-void roundRect(int x0, int y0, int x1, int y1, byte fill); // rounded rectangle (top left, bottom right)
-void circle(int x, int y, int radius, byte fill); // circle (center x, center y, radius, fill)
-void bezier(int* arr, uint8_t size, uint8_t dense, uint8_t fill); // bezier curve
+VOID DOT (Int X, Int Y, byte Fill);// Point (filling 1/0)
+VOID Line (Int X0, Int Y0, Int X1, Int Y1, Byte Fill);// Line (X0, Y0, X1, Y1)
+VOID Fastlineh (Int y, Int X0, Int X1, Byte Fill);// horizontal line
+VOID FASTLINEV (Int X, Int Y0, Int Y1, Byte Fill);// Vertical line
+VOID RECT (Int X0, Int Y0, Int X1, Int Y1, Byte Fill);// rectangle (lion. Verkhn, right. Nizhn)
+VOID Roundrect (Int X0, Int Y0, Int X1, Int Y1, Byte Fill);// Rectangle rounded (lion. Verkhn, right. Nizhn)
+VOID Circle (Int X, Int y, int radius, byte Fill);// circumference (center x, center U, radius, filling)
+VOID Bezier (int* arr, uint8_t size, uint8_t dense, uint8_t fill);// Curve Bezier
 
-// output bitmap
-// invert - BITMAP_NORMAL/BITMAP_INVERT invert
-// mode BUF_ADD / BUF_SUBTRACT / BUF_REPLACE
-void drawBitmap(int x, int y, const uint8_t *frame, int width, int height, uint8_t invert = 0, byte mode = 0);
+// Bitmap
+// invert - bitmap_normal/bitmap_invert invert
+// Mode buf_add / buf_subtract / buf_replay
+VOID DRAWBITMAP (Int X, Int Y, COST UINT8_T *FRAME, Int width, int Height, Uint8_t Invert = 0, Byte Mode = 0);
 
-void fill(uint8_t data); // fill the entire display with the specified byte
-void drawByte(uint8_tdata); // sends bytes to "column" setCursor() and setCursorXY()
-void drawBytes(uint8_t* data, byte size); // output a one-dimensional byte array (linear bitmap height 8)
-void update(); // completely update the display from the buffer
-void update(int x0, int y0, int x1, int y1); // selectively update display from buffer (x0, y0, x1, y1)
-```
+Void Fill (Uint8_t Data);// Pour the entire display specified byte
+VOID DRAWBYTE (UINT8_T DATA);// Bait's helmet in the "column" setcursor () and setcursorxy ()
+VOID DRAWBYTES (UINT8_T* DATA, Byte SIZE);// Bring one -dimensional byte array (linear bitmap 8)
+VOID update ();// completely update the display from the buffer
+VOID update (int X0, Int Y0, Int X1, Int Y1);// selectively update the display from the buffer (x0, y0, x1, y1)
+`` `
 
-<a id="example"></a>
+### display on SPI + SD card
+Famous trouble SD cards http: // ELM-Chan.org/docs/mmc/mmc_e.html,
+COSIDERATION ON MULTI-SLAVE Configuration.How to solve: after the completion of communication
+With a memory card, you need to release CS cards (the Bibla Bibla is perhaps does it yourself, or let go manually)
+And throw a couple of bytes on SPI (a couple of zeros conditionally).Why - the map holds the line of the date.
+
+<a id="EXAMPLE"> </a>
 ## Example
-See **examples** for other examples!
-```cpp
-// define before connecting lib - use microWire (easy lib for I2C)
-//#define USE_MICRO_WIRE
+The rest of the examples look at ** Examples **!
+`` `CPP
+// Define before connecting the LIBA - use microWire (Light Liba for i2c)
+//# Define use_micro_wire
 
-// define before connecting lib - SPI speed
-//#define OLED_SPI_SPEED 4000000ul
+// Define before connecting the libe - SPI speed
+//# Define OLED_SPI_Speed 4000000UL
 
-#include <GyverOLED.h>
+#include <gyveroled.h>
 
-// initialization:
-// GyverOLED<model, buffer, interface, CS, DC, RST> oled;
-// "default" - can be omitted
+// Initialization:
+// gyveroled <model, buffer, interface, CS, DC, RST> OLED;
+// "by default" - you can not indicate
 
-// display model:
-// SSD1306_128x32
-// SSD1306_128x64
-// SSH1106_128x64 (BUFFER ONLY)
+// Model display:
+// SSD1306_128X32
+// SSD1306_128X64
+// ssh1106_128x64 (only with buffer)
 
 // buffer:
-// OLED_NO_BUFFER (no buffer)
+// OLED_NO_BUFFER (without buffer)
 // OLED_BUFFER (with a buffer on the MK side) - by default
 
-// interface:
-// OLED_I2C - default
-// OLED_SPI (specify pins CS, DC, RST/RES)
+// Interface:
+// oled_i2c - by default
+// oled_spi (specify pins CS, DC, RST/Res)
 
-// examples:
-//GyverOLED<SSD1306_128x32, OLED_BUFFER> oled;
-//GyverOLED<SSD1306_128x32, OLED_NO_BUFFER> oled;
-//GyverOLED<SSD1306_128x64, OLED_BUFFER> oled;
-//GyverOLED<SSD1306_128x64, OLED_NO_BUFFER> oled;
-//GyverOLED<SSD1306_128x64, OLED_BUFFER, OLED_SPI, 8, 7, 6> oled;
-GyverOLED<SSH1106_128x64> oled;
+// Examples:
+// GyverOLED <SSD1306_128X32, OLED_BUFFER> OLED;
+// gyveroled <SSD1306_128X32, OLED_NO_BUFFER> OLED;
+// GyverOLED <SSD1306_128X64, OLED_BUFFER> OLED;
+// gyveroled <SSD1306_128X64, OLED_NO_BUFFER> OLED;
+// GyverOLED <SSD1306_128X64, OLED_BUFFER, OLED_SPI, 8, 7, 6> OLED;
+GyverOLED <SSH1106_128X64> OLED;
 
-// for I2C, you can pass the address: GyverOLED oled(0x3C);
+// for i2c you can transmit the address: gyveroled OLED (0x3C);
 
-// bitmap created in ImageProcessor https://github.com/AlexGyver/imageProcessor
-// with output parameters vertical byte (OLED)
-const uint8_t bitmap_32x32[] PROGMEM = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0xC0Cranberry, 0xc0, 0xe0, 0xf0, 0x70, 0x70, 0x30, 0x30, 0x30, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xe0, 0xf0, 0xf0, 0x70, 0x30, 0x30, 0x20, 0x00, 0x00, 0x00,
-  0x00 0x30 0x78 0xFC 0x7F 0x3F 0x0F 0x0F 0x1F 0x3C 0x78 0xF0 0xE0 0xC0 0x80 0x80 0x80 0x40 0xE0 0x13, 0x1E, 0x1C, 0x1C, 0x0E, 0x07, 0x00,
-  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0xC0 0xE0 0xF0 0xF9 0xF7 0xEF 0x5F 0x3F 0x7F 0xFE 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x1E, 0x33, 0x33, 0x1F, 0x0F, 0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x1F, 0x0E, 0x04, 0x00, 0x00, 0x00, 0x00,
+// Bitmap created in ImageProcessor https://github.com/alexgyver/imageprocessor
+// with the output parameters Vertical byte (OLED)
+const uint8_t bitmap_32x32 [] progmem = {{
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0xc0, 0xc0, 0xe0, 0xf0, 0x70, 0x70, 0x30, 0x30, 0x30, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xe0, 0xf0, 0xf0,0xf0, 0x70, 0x30, 0x30, 0x20, 0x00, 0x00,
+  0x00, 0x30, 0x78, 0xfc, 0x7f, 0x3f, 0x0f, 0x0f, 0x1f, 0x3c, 0x78, 0xf0, 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x40, 0xe0, 0xf0, 0xf8, 0xfc, 0xFF, 0x7f, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x0x13, 0x1e, 0x1c, 0x1c, 0x0e, 0x07, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf9, 0xf7, 0XEF, 0x5F, 0x3F, 0x7F, 0XFE, 0xfd, 0xfb, 0xf1, 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x1e, 0x33, 0x33, 0x1f, 0x0f, 0x07, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f0x1f, 0x0e, 0x04, 0x00, 0x00, 0x00, 0x00,
 };
 
-void setup() {
-  Serial.begin(9600);
-  oled.init(); // initialization
+VOID setup () {
+  Serial.Begin (9600);
+  oled.init ();// Initialization
 
-  // --------------------
-  // set I2C speed
-  //Wire.setClock(800000L); // max. 800'000
+  // -----------------------
+  // Speed settings i2c
+  //Wire.setclock(800000l);// Max.800'000
 
-  // --------------------
-  oled.clear(); // clear display (or buffer)
-  oled update(); // update. Only for buffered mode! OLED_BUFFER
+  // -----------------------
+  oled.clear ();// Clean the display (or buffer)
+  oled.update ();// update.Only for the regime with the buffer!OLED_BUFFER
 
-  // --------------------
-  oled.home(); // cursor at 0,0
-  oled.print("Hello!"); // print anything: numbers, strings, floats, like Serial!
-  oled update();
-  delay(2000);
+  // -----------------------
+  oled.home ();// Cursor at 0.0
+  oled.print ("Hello!");// Print anything: numbers, lines, float, like serial!
+  oled.update ();
+  DELAY (2000);
 
-  // --------------------
-  oled.setCursor(5, 1); // cursor at (pixel X, row Y)
-  oled.setScale(2);
-  oled.print("Hello!");
-  oled update();
-  delay(2000);
+  // -----------------------
+  oled.Setcursor (5, 1);// cursor in (pixel x, line y)
+  oled.Setscale (2);
+  oled.print ("Hello!");
+  oled.update ();
+  DELAY (2000);
 
-  // --------------------
-  oled.setCursorXY(15, 30); // cursor at (pixel X, pixel Y)
-  oled.setScale(3);
-  oled.invertText(true); // invert text!
-  oled.print("Hello!");
-  oled update();
-  delay(2000);
+  // -----------------------
+  oled.setcursorxy (15, 30);// cursor in (pixel x, pixel y)
+  oled.Setscale (3);
+  oled.invertext (True);// Invert the text!
+  oled.print ("Hello!");
+  oled.update ();
+  DELAY (2000);
 
-  // --------------------
-  oled.clear();
-  oled.home();
-  oled.setScale(1);
-  oled.invertText(false);
-  oled.autoprintln(true); // automatically wrap text
-  oled.print(F("Lorem ipsum dolor sit amet, lorem ipsum dolor sit amet hello yo people, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna acranberry liqua. Ut enim ad minim veniam"));
-  oled update();
-  delay(2000);
+  // -----------------------
+  oled.clear ();
+  oled.home ();
+  oled.setscale (1);
+  oled.invertext (false);
+  oled.autoprintln (True);// automatically tolerate text
+  oled.print (f ("lorem ipsum dolor site amet, flamier ipsum sit amet Hello people ё, Consectur Adipiscing Elit, Sed Do -eiusmod Tempor IncidIDIDIDUNT UT DOLORE MAGNA ALIIKA. D minim Veniam "));
+  oled.update ();
+  DELAY (2000);
 
-  // --------------------
-  oled.home();
-  oled.textMode(BUF_ADD);
-  // BUF_ADD - overlay text
-  // BUF_SUBTRACT - subtract text
-  // BUF_REPLACE - replace (whole letter rectangle)
-  oled.home();
-  oled.setScale(3);
-  oled.print("KEK!");
-  oled update();
-  delay(2000);
+  // -----------------------
+  oled.home ();
+  oled.textmode (buf_add);
+  // buf_add - impose a text
+  // buf_subtract - subtract text
+  // buf_replas - replace (the entire rectangle of the letter)
+  oled.home ();
+  oled.Setscale (3);
+  oled.print ("Kek!");
+  oled.update ();
+  DELAY (2000);
 
-  // --------------------
+  // -----------------------
   // SERVICE
-  //oled.setContrast(10); // brightness 0..15
-  //oled.setPower(true); // true/false - enable/disable the display
-  //oled.flipH(true); // true/false - flip horizontally
-  //oled.flipV(true); // true/false - flip vertically
-  //oled.isEnd(); // returns true if the display is "ended" - for letter-by-letter output
+  //OLED.SETCONTRAST (10);// brightness 0..15
+  //OLED.SetPower(True);// True/false - turn on/off the display
+  //OLED.FLIPH(True);// True/false - wink horizontally
+  //OLED.FLIPV(True);// True/false - wiring vertically
+  //OLED.Send ();// Returns True if the display "ends" - with a multiple conclusion
 
-  // --------------------
-  oled.clear();
-  dot(0, 0); // point on x,y
-  oled.dot(0, 1, 1); // third argument: 0 pixel off, 1 pixel on (default)
-  oled.line(5, 5, 10, 10); // line x0,y0,x1,y1
-  //oled.line(5, 5, 10, 10, 0); // fifth argument: 0 erase, 1 draw (default)
-  oled.fastLineH(0, 5, 10); // horizontal line (y, x1, x2)
-  //oled.fastLineH(0, 5, 10, 0); // fourth argument: 0 erase, 1 draw (default)
-  oled.fastLineV(0, 5, 10); // similarly vert. line(x, y1, y2)
-  oled.rect(20, 20, 30, 25); // rectangle (x0,y0,x1,y1)
-  oled.rect(5, 35, 35, 60, OLED_STROKE); // rectangle (x0,y0,x1,y1)
-  // shape parameters:
-  // OLED_CLEAR - clear
-  // OLED_FILL - fill
-  // OLED_STROKE - draw a frame
-  oled.roundRect(50, 5, 80, 25, OLED_STROKE); // similarly rounded rectangle
-  oled.circle(60, 45, 15, OLED_STROKE); // circle centered at (x,y, with radius)
-  oled.circle(60, 45, 5, OLED_FILL); // fourth argument: shape parameter
+  // -----------------------
+  oled.clear ();
+  oled.dot (0, 0);// Point on X, Y
+  oled.dot (0, 1, 1);// Third Argument: 0 Off Pixel, 1 ON PIXEL (SITION)
+  oled.line (5, 5, 10, 10);// Line X0, Y0, X1, Y1
+  //OLED.LINE (5, 5, 10, 10, 0);// Fifth argument: 0 erase, 1 draw (by the silence)
+  oled.fastlineh (0, 5, 10);// horizontal line (y, x1, x2)
+  //OLED.FASTLINEH, 5, 10, 0);// Fourth argument: 0 erase, 1 draw (by the silence)
+  oled.fastlinev (0, 5, 10);// Similarly, vert.Line (X, Y1, Y2)
+  oled.rect (20, 20, 30, 25);// rectangle (x0, y0, x1, y1)
+  oled.rect (5, 35, 35, 60, oled_stroke);// rectangle (x0, y0, x1, y1)
+  // Figure Parameters:
+  // OLED_Clear - Clear
+  // oled_fill - pour
+  // oled_stroke - draw a frame
+  oled.roundrect (50, 5, 80, 25, Oled_stroke);// similarly a rounded rectangle
+  oled.circle (60, 45, 15, oled_stroke);// circumference with center B (x, y, with radius)
+  oled.circle (60, 45, 5, oled_fill);// Fourth argument: figure parameter
 
-  // bitmap
-  oled.drawBitmap(90, 16, bitmap_32x32, 32, 32, BITMAP_NORMAL, BUF_ADD);
-  //oled.drawBitmap(90, 16, bitmap_32x32, 32, 32); // by default normal and BUF_ADD
-  // x, y, name, width, height, BITMAP_NORMAL(0)/BITMAP_INVERT(1), BUF_ADD/BUF_SUBTRACT/BUF_REPLACE
+  // Bitmap
+  oled.drawbitmap (90, 16, Bitmap_32x32, 32, 32, Bitmap_normal, Buf_add);
+  //OLELD.DRAWBITMAP (90, 16, bitmap_32x32, 32, 32);// by the silence.Normal and buf_add
+  // x, y, name, width, height, bitmap_normal (0)/bitmap_invert (1), buf_add/buf_subtract/buf_replay
   
-  oled update();
+  oled.update ();
 }
 
-void loop() {
+VOID loop () {
 }
-```
+`` `
 
-<a id="versions"></a>
-## Versions
-- v0.1 (27.02.2021) - fixed non-printing bottom line
-- v0.2 (16.03.2021) - fixed symbols [|]~$
-- v0.3 (03/26/2021) - added bezier curve
-- v0.4 (10.04.2021) - compatible with esp
-- v0.5 (05/09/2021) - added support for SPI and SSH1106 (buffer only)! gnd- vcc-sck-data-rst-dc-cs
+<a id="versions"> </a>
+## versions
+- v0.1 (02.27.2021) - corrected the unprintable lower line
+- v0.2 (03/16/2021) - Fixed symbols [|] ~ $
+- v0.3 (03/26/2021) - added Curve Bezier
+- v0.4 (10.04.2021) - compatibility with ESP
+- V0.5 (05.05.2021) - Support SPI and SSH1106 (only buffer) added!GND-VCC-SCK-DATA-RST-DC-CS
     
 - v1.0 - release
-- v1.1 - improved line wrapping (does not remove the first character just like that)
-- v1.2 - redesigned FastIO
+- V1.1 - improved the transfer of lines (does not remove the first symbol just like that)
+- V1.2 - Redeled Fastio
 - v1.3 - rectangles can be drawn from any corner
-- v1.3.1 - fixed lines (broke in 1.3.0)
-- v1.3.2 - removed FastIO
-- v1.4 - fixed SPI displays
+- v1.3.1 - fixed the lines (broke in 1.3.0)
+- v1.3.2 - removed Fastio
+- V1.4 - Spi displays Faced
+- v1.5 - a broken conclusion after cleaning without specifying the cursor
+- V1.6 - The choice of I2C Pin for ESPX has been added, Clear (..) for buffer, added the ability to disable the text module
+- V1.6.1 - re -release for the library manager
 
-<a id="feedback"></a>
-## Bugs and feedback
-When you find bugs, create an **Issue**, or better, immediately write to the mail [alex@alexgyver.ru](mailto:alex@alexgyver.ru)
-The library is open for revision and your **Pull Request**'s!
+<a id="feedback"> </a>
+## bugs and feedback
+Create ** Issue ** when you find the bugs, and better immediately write to the mail [alex@alexgyver.ru] (mailto: alex@alexgyver.ru)
+The library is open for refinement and your ** pull Request ** 'ow!
+
+
+When reporting about bugs or incorrect work of the library, it is necessary to indicate:
+- The version of the library
+- What is MK used
+- SDK version (for ESP)
+- version of Arduino ide
+- whether the built -in examples work correctly, in which the functions and designs are used, leading to a bug in your code
+- what code has been loaded, what work was expected from it and how it works in reality
+- Ideally, attach the minimum code in which the bug is observed.Not a canvas of a thousand lines, but a minimum code
