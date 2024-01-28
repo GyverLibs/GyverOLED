@@ -22,6 +22,7 @@ uint32_t timer;
 void setup() {
   oled.init();
   Wire.setClock(800000L);
+  timer = millis();
 }
 
 void loop() {
