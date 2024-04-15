@@ -190,7 +190,7 @@ class GyverOLED {
                 fastWrite(_RST, 1);
                 delay(1);
                 fastWrite(_RST, 0);
-                delay(10);
+                delay(20);
                 fastWrite(_RST, 1);
             }
         } else {
@@ -965,6 +965,7 @@ class GyverOLED {
         } else {
             Wire.endTransmission();
             _writes = 0;
+            delayMicroseconds(2);  // https://github.com/GyverLibs/GyverOLED/issues/45
         }
     }
 
