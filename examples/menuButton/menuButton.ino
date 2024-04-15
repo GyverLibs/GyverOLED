@@ -31,3 +31,5 @@ void setup() {
   oled.sendBuffer();
   oled.update();  
 }
+void loop() {
+}
