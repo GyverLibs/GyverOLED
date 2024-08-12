@@ -544,7 +544,6 @@ class GyverOLED {
             }
             byte thisFill = (fill == OLED_FILL ? 0 : 1);
             // рисуем в олед и в большой буфер
-            x1++;
             y1++;
             byte shift = y0 & 0b111;
             byte shift2 = 8 - (y1 & 0b111);
