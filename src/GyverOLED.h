@@ -544,7 +544,6 @@ class GyverOLED {
             }
             byte thisFill = (fill == OLED_FILL ? 0 : 1);
             // рисуем в олед и в большой буфер
-            x1++;
             y1++;
             byte shift = y0 & 0b111;
             byte shift2 = 8 - (y1 & 0b111);
@@ -805,8 +804,8 @@ class GyverOLED {
             y1 >>= 3;
             setWindow(x0, y0, x1, y1);
             beginData();
-            for (int x = x0; x < x1; x++)
-                for (int y = y0; y < y1 + 1; y++)
+            for (int x = x0; x <= x1; x++)
+                for (int y = y0; y <= y1; y++)
                     if (x >= 0 && x <= _maxX && y >= 0 && y <= _maxRow)
                         sendByte(_oled_buffer[y + x * (_TYPE ? 8 : 4)]);
             endTransm();
