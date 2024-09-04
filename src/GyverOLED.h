@@ -173,13 +173,23 @@ class GyverOLED : public Print {
 #else
 class GyverOLED {
 #endif
-   public:
     // ========================== КОНСТРУКТОР =============================
-    GyverOLED(uint8_t address = 0x3C) : _address(address) {}
+   private:
+    uint8_t _i2c_address = 0x3c;
+    TwoWire *_wire = 0;
+
+   public:
 
     // ============================= СЕРВИС ===============================
     // инициализация
-    void init(int __attribute__((unused)) sda = 0, int __attribute__((unused)) scl = 0) {
+    void init(TwoWire &wirePort = Wire) {
+        init(_i2c_address,wirePort);
+    }
+
+    void init(uint8_t address, TwoWire &wirePort) {
+        _i2c_address = address;
+        _wire = &wirePort;
+
         if (_CONN) {
             SPI.begin();
             pinMode(_CS, OUTPUT);
@@ -193,13 +203,6 @@ class GyverOLED {
                 delay(20);
                 fastWrite(_RST, 1);
             }
-        } else {
-#if defined(ESP32) || defined(ESP8266)
-            if (sda || scl) Wire.begin(sda, scl);
-            else Wire.begin();
-#else
-            Wire.begin();
-#endif
         }
 
         beginCommand();
@@ -717,31 +720,31 @@ class GyverOLED {
             int h = y & 0x07;
             if (_BUFF) {
                 for (int p = 0; p < 2; p++) {
-                    Wire.beginTransmission(_address);
+                    _wire->beginTransmission(_address);
                     continueCmd(0xB0 + (y >> 3) + p);        // Page
                     continueCmd(0x00 + ((x + 2) & 0x0F));    // Column low nibble
                     continueCmd(0x10 + ((x + 2) >> 4));      // Column high nibble
                     continueCmd(0xE0);            // Read modify write
-                    Wire.write(OLED_ONE_DATA_MODE);
-                    Wire.endTransmission();
-                    Wire.requestFrom((int)_address, 2);
-                    Wire.read();                                // Dummy read
-                    int j = Wire.read();
-                    Wire.beginTransmission(_address);
-                    Wire.write(OLED_ONE_DATA_MODE);
-                    Wire.write((data << h) >> (p << 3) | j);
+                    _wire->write(OLED_ONE_DATA_MODE);
+                    _wire->endTransmission();
+                    _wire->requestFrom((int)_address, 2);
+                    _wire->read();                                // Dummy read
+                    int j = _wire->read();
+                    _wire->beginTransmission(_address);
+                    _wire->write(OLED_ONE_DATA_MODE);
+                    _wire->write((data << h) >> (p << 3) | j);
                     continueCmd(0xEE);                       // Cancel read modify write
-                    Wire.endTransmission();
+                    _wire->endTransmission();
                 }
             } else {
                 for (int p = 0; p < 2; p++) {
-                    Wire.beginTransmission(_address);
+                    _wire->beginTransmission(_address);
                     continueCmd(0xB0 + (y >> 3) + p);        // Page
                     continueCmd(0x00 + ((x + 2) & 0x0F));    // Column low nibble
                     continueCmd(0x10 + ((x + 2) >> 4));      // Column high nibble
-                    Wire.write(OLED_ONE_DATA_MODE);
-                    Wire.write((data << h) >> (p << 3));
-                    Wire.endTransmission();
+                    _wire->write(OLED_ONE_DATA_MODE);
+                    _wire->write((data << h) >> (p << 3));
+                    _wire->endTransmission();
                 }
             }*/
         }
@@ -894,7 +897,7 @@ class GyverOLED {
 
     // ========= ЛОУ-ЛЕВЕЛ ОТПРАВКА =========
 
-    // супер-костыль для либы Wire. Привет индусам!
+    // супер-костыль для либы _wire-> Привет индусам!
     void sendByte(uint8_t data) {
         sendByteRaw(data);
 #if !defined(microWire_h)
@@ -909,7 +912,7 @@ class GyverOLED {
     }
     void sendByteRaw(uint8_t data) {
         if (_CONN) SPI.transfer(data);
-        else Wire.write(data);
+        else _wire->write(data);
     }
 
     // отправить команду
@@ -962,7 +965,7 @@ class GyverOLED {
             fastWrite(_CS, 1);
             SPI.endTransaction();
         } else {
-            Wire.endTransmission();
+            _wire->endTransmission();
             _writes = 0;
             delayMicroseconds(2);  // https://github.com/GyverLibs/GyverOLED/issues/45
         }
@@ -972,7 +975,7 @@ class GyverOLED {
         if (_CONN) {
             SPI.beginTransaction(OLED_SPI_SETT);
             fastWrite(_CS, 0);
-        } else Wire.beginTransmission(_address);
+        } else _wire->beginTransmission(_address);
     }
 
     // получить "столбик-байт" буквы
