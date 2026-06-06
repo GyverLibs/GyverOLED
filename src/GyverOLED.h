@@ -367,6 +367,12 @@ class GyverOLED {
         setWindowShift(x, y, _maxX, _scaleY);
     }
 
+    // получить координаты курсора
+    void getCursorXY(int &x, int &y) {
+        x = _x;
+        y = _y;
+    }
+
     // масштаб шрифта (1-4)
     void setScale(uint8_t scale) {
         scale = constrain(scale, 1, 4);  // защита от нечитающих доку
